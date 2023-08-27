@@ -10,6 +10,6 @@ package entity
 //)
 
 type Segment struct {
-	ID      int    `json:"id"`
+	ID      int    `json:"id,omitempty"`
 	Segment string `json:"segment"`
 }

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/postgres"
 )
@@ -64,16 +65,32 @@ func (u *userRepository) GetALL(ctx context.Context) (map[string][]string, error
 }
 
 func (u *userRepository) GetByID(ctx context.Context, id string) (*entity.User, error) {
-	query := `SELECT "user".id, ARRAY_AGG(segment.segment_type) AS segment_types
+	query := `SELECT segment.segment_type
 			FROM "user"
          	JOIN user_segment ON "user".id = user_segment.user_id
          	JOIN segment ON segment.id = user_segment.segment_id
-			WHERE "user".id = $1
-			GROUP BY "user".id;`
+			WHERE "user".id = $1`
+
+	rows, err := u.Pool.Query(ctx, query, id)
+	if err != nil {
+		return nil, err
+	}
+
 	user := &entity.User{}
 
-	err := u.Pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Segments)
-	if err != nil {
+	for rows.Next() {
+		var segment entity.Segment
+
+		err = rows.Scan(&segment.Segment)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(segment)
+
+		user.Segments = append(user.Segments, segment)
+	}
+
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
@@ -89,5 +106,18 @@ func (u *userRepository) SetSegment(ctx context.Context, user *entity.User) erro
 			return err
 		}
 	}
+	return nil
+}
+
+func (u *userRepository) DeleteSegment(ctx context.Context, user *entity.User) error {
+	query := `DELETE FROM user_segment WHERE user_id = $1 AND segment_id = $2`
+
+	for _, segment := range user.Segments {
+		_, err := u.Pool.Exec(ctx, query, user.ID, segment.ID)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

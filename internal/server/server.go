@@ -24,18 +24,24 @@ func Run(cfg *config.Config, log *logger.Logger) error {
 	app := fiber.New()
 
 	segmentRepo := repo.NewSegmentRepository(conn)
-	//userRepo := repo.NewUserReposotory(conn)
+	userRepo := repo.NewUserReposotory(conn)
 
-	segmentService := usecase.NewSegmentService(segmentRepo, log)
-	//userService := usecase.NewUserService(userRepo, log)
+	segmentUsecase := usecase.NewSegmentService(segmentRepo, log)
+	userUsecase := usecase.NewUserService(userRepo, log)
 
-	segmentHandler := controller.NewSegmentHandler(segmentService, log)
+	segmentHandler := controller.NewSegmentHandler(segmentUsecase, log)
+	userHandler := controller.NewUserHandler(segmentUsecase, userUsecase, log)
 
 	api := app.Group("/api")
 	v1 := api.Group("/segment")
 	v1.Get("/", segmentHandler.GetAll)
 	v1.Post("/", segmentHandler.CreateSegment)
 	v1.Delete("/:segment", segmentHandler.DeleteSegment)
+
+	v2 := api.Group("/user")
+	v2.Get("/:id", userHandler.GetUserSegment)
+	v2.Post("/", userHandler.SetSegments)
+	v2.Delete("/:segment", userHandler.DeleteSegments)
 
 	log.Info("Starting http server: %s:%s", cfg.Server.TypeServer, cfg.Server.Port)
 
