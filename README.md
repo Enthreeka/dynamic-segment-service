@@ -8,6 +8,14 @@
 
 `/api/segment`
 
+Запрос
+
+````
+{
+	"segment":"AVITO_CAR_DISCOUNT"
+}
+````
+
 Ответ
 
 ````
@@ -35,6 +43,14 @@
 **DELETE - удалить сегмент**
 
 `/api/segment/:segment`
+
+Запрос
+
+````
+{
+	"segment":"AVITO_CAR_DISCOUNT"
+}
+````
 
 Ответ
 
