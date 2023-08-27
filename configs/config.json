@@ -1,4 +1,9 @@
 {
+  "server": {
+    "hostname": "0.0.0.0",
+    "port": "8080",
+    "typeserver": "port"
+  },
   "postgres":{
     "url": "postgres://postgres:1234@localhost:5432/avito"
   }

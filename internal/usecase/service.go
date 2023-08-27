@@ -13,4 +13,8 @@ type UserService interface {
 }
 
 type SegmentService interface {
+	CreateSegment(ctx context.Context, segment string) error
+	DeleteSegmentByName(ctx context.Context, segment *entity.Segment) error
+	GetIDByName(ctx context.Context, segmentType string) (*entity.Segment, error)
+	GetAllSegments(ctx context.Context) ([]entity.Segment, error)
 }

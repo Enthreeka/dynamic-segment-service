@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS user_segment(
     foreign key (user_id)
                     references "user" (id) on delete cascade,
     foreign key (segment_id)
-                     references segment (id)
+                     references segment (id) on delete cascade
 
 );
 
@@ -54,3 +54,11 @@ FROM "user"
          JOIN segment ON segment.id = user_segment.segment_id
 WHERE "user".id = 'e83942f6-fef2-43e3-93cd-f9ba652c8f9a'
 GROUP BY "user".id;
+
+
+SELECT id,segment_type FROM segment WHERE segment_type = 'AVITO_VOICE_MESSAGES';
+
+
+SELECT id,segment_type FROM segment;
+
+SELECT id,segment_type FROM segment WHERE segment_type = 'AVI';

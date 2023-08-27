@@ -31,7 +31,7 @@ func (s *segmentRepository) DeleteByID(ctx context.Context, segment *entity.Segm
 }
 
 func (s *segmentRepository) GetALL(ctx context.Context) ([]entity.Segment, error) {
-	query := `SELECT (id,segment_type) FROM segment`
+	query := `SELECT id,segment_type FROM segment`
 
 	rows, err := s.Pool.Query(ctx, query)
 	if err != nil {
@@ -58,9 +58,9 @@ func (s *segmentRepository) GetALL(ctx context.Context) ([]entity.Segment, error
 	return allSegment, nil
 }
 
-func (s *segmentRepository) GetByID(ctx context.Context, segmentType string) (*entity.Segment, error) {
-	query := `SELECT (id,segment_type) FROM segment WHERE segment_type = $1`
-	var segment *entity.Segment
+func (s *segmentRepository) GetByName(ctx context.Context, segmentType string) (*entity.Segment, error) {
+	query := `SELECT id,segment_type FROM segment WHERE segment_type = $1`
+	segment := &entity.Segment{}
 
 	err := s.Pool.QueryRow(ctx, query, segmentType).Scan(&segment.ID, &segment.Segment)
 	if err != nil {

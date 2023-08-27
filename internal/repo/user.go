@@ -84,7 +84,7 @@ func (u *userRepository) SetSegment(ctx context.Context, user *entity.User) erro
 	query := `INSERT INTO user_segment (user_id,segment_id) VALUES ($1,$2)`
 
 	for _, segment := range user.Segments {
-		_, err := u.Pool.Exec(ctx, query, &user.ID, &segment.Segment)
+		_, err := u.Pool.Exec(ctx, query, &user.ID, &segment.ID)
 		if err != nil {
 			return err
 		}
