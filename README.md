@@ -60,3 +60,109 @@
 	"message": "Completed successfully"
 }
 ````
+
+## Структура управления сегменатцией у пользователей
+
+**GET - получить все сегменты пользователя**
+
+`/api/user/:id`
+
+Запрос 
+
+```
+{
+	"id": "0fa0c12b-32a5-49ef-bbb5-3539f8f67971"
+}
+```
+
+Ответ 
+
+```
+{
+	"id": "0fa0c12b-32a5-49ef-bbb5-3539f8f67971",
+	"segments": [
+		{
+			"segment": "AVITO_VOICE_MESSAGES"
+		},
+		{
+			"segment": "AVITO_DISCOUNT_50"
+		}
+	]
+}
+```
+
+**POST - добавить сегменты пользователю**
+
+`/api/user/`
+
+Запрос 
+
+```
+{
+	"id": "0fa0c12b-32a5-49ef-bbb5-3539f8f67971",
+	"segments": [
+		{
+			"segment": "AVITO_VOICE_MESSAGES"
+		},
+		{
+			"segment": "AVITO_DISCOUNT_50"
+		}
+	]
+}
+```
+
+Ответ 
+
+```
+{
+	"added_segments": [
+		{
+			"id": 1,
+			"segment": "AVITO_VOICE_MESSAGES"
+		},
+		{
+			"id": 3,
+			"segment": "AVITO_DISCOUNT_50"
+		}
+	],
+	"message": "Completed successfully"
+}
+```
+
+**DELETE - удалить сегменты у пользователю**
+
+`/api/user/:segment`
+
+Запрос
+
+```
+{
+	"id": "70c247da-377a-42ac-97f6-316abfc43722",
+	"segments": [
+		{
+			"segment": "AVITO_VOICE_MESSAGES"
+		},
+		{
+			"segment": "AVITO_DISCOUNT_50"
+		}
+	]
+}
+```
+
+Ответ 
+
+```
+{
+	"deleted_segments": [
+		{
+			"id": 1,
+			"segment": "AVITO_VOICE_MESSAGES"
+		},
+		{
+			"id": 3,
+			"segment": "AVITO_DISCOUNT_50"
+		}
+	],
+	"message": "Completed successfully"
+}
+```

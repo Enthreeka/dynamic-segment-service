@@ -2,9 +2,11 @@ package http
 
 import (
 	"context"
+	"github.com/Enthreeka/dynamic-segment-service/internal/apperror"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/internal/usecase"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/logger"
+	"github.com/Enthreeka/dynamic-segment-service/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -32,13 +34,21 @@ func (s *segmentHandler) CreateSegment(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO Нужно сделать apperror как в notes service
+	validSegment, err := validation.ValidSegmentName(segment.Segment)
+	if !validSegment {
+		s.log.Error("invalid data: %v", err)
+		return c.Status(fiber.StatusBadRequest).JSON(apperror.NewAppError(err, "invalid input data"))
+	}
+
+	_, err = s.segmentUsecase.GetIDByName(context.Background(), segment.Segment)
+	if err == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(apperror.NewAppError(err, "segment already exist"))
+	}
+
 	err = s.segmentUsecase.CreateSegment(context.Background(), segment.Segment)
 	if err != nil {
 		s.log.Error("failed to create segment: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err,
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
 	s.log.Info("segment creation completed successfully : %s", segment.Segment)
@@ -60,22 +70,20 @@ func (s *segmentHandler) DeleteSegment(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO Нужно сделать apperror как в notes service
 	searchSegment, err := s.segmentUsecase.GetIDByName(context.Background(), segment.Segment)
 	if err != nil {
 		s.log.Error("failed to get segment: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
-			"message": "Надо сделать ошибку что нет такого сегмента",
-		})
+
+		if err == apperror.ErrSegmentsNotFound {
+			c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
-	//TODO Нужно сделать apperror как в notes service
 	err = s.segmentUsecase.DeleteSegmentByName(context.Background(), searchSegment)
 	if err != nil {
 		s.log.Error("failed to delete segment: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err,
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
 	s.log.Info("segment deletion completed successfully : %s", segment.Segment)
@@ -88,22 +96,14 @@ func (s *segmentHandler) DeleteSegment(c *fiber.Ctx) error {
 func (s *segmentHandler) GetAll(c *fiber.Ctx) error {
 	s.log.Info("start of searching segments")
 
-	//segment := make([]entity.Segment, 0)
-	//err := c.BodyParser(&segment)
-	//if err != nil {
-	//	s.log.Error("failed to parse request body: %v", err)
-	//	return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
-	//		"message": "Invalid request body",
-	//	})
-	//}
-
-	//TODO Нужно сделать apperror как в notes service
 	segments, err := s.segmentUsecase.GetAllSegments(context.Background())
 	if err != nil {
 		s.log.Error("failed to get all segments: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(map[string]interface{}{
-			"message": "Надо сделать ошибку ",
-		})
+
+		if err == apperror.ErrSegmentsNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+		}
+		return c.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	segmentsMap := make(map[int]string)
@@ -113,5 +113,4 @@ func (s *segmentHandler) GetAll(c *fiber.Ctx) error {
 
 	s.log.Info("search segments completed successfully")
 	return c.Status(fiber.StatusCreated).JSON(segmentsMap)
-
 }

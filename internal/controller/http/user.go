@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"github.com/Enthreeka/dynamic-segment-service/internal/apperror"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/internal/usecase"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/logger"
@@ -36,13 +37,14 @@ func (u *userHandler) GetUserSegment(c *fiber.Ctx) error {
 		})
 	}
 
-	//TODO Нужно сделать apperror как в notes service
 	userInfo, err := u.userUsecase.GetUserInfo(context.Background(), user.ID)
 	if err != nil {
 		u.log.Error("failed to get info about user - %s: %v", user.ID, err)
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err,
-		})
+
+		if err == apperror.ErrSegmentsNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
 	u.log.Info("getting user segments completed successfully")
@@ -66,7 +68,11 @@ func (u *userHandler) SetSegments(c *fiber.Ctx) error {
 		segmentID, err := u.segmentUsecase.GetIDByName(context.Background(), user.Segments[indx].Segment)
 		if err != nil {
 			u.log.Error("failed to get id segment by name")
-			return c.Status(fiber.StatusBadRequest).JSON(err)
+
+			if err == apperror.ErrSegmentsNotFound {
+				return c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
 		user.Segments[indx].ID = segmentID.ID
 	}
@@ -74,9 +80,7 @@ func (u *userHandler) SetSegments(c *fiber.Ctx) error {
 	err = u.userUsecase.SetSegment(context.Background(), user)
 	if err != nil {
 		u.log.Error("failed to set segments to user - %s: %v", user.ID, err)
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err,
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
 	u.log.Info("setting segments to user completed successfully")
@@ -102,7 +106,11 @@ func (u *userHandler) DeleteSegments(c *fiber.Ctx) error {
 		segmentID, err := u.segmentUsecase.GetIDByName(context.Background(), user.Segments[indx].Segment)
 		if err != nil {
 			u.log.Error("failed to get id segment by name")
-			return c.Status(fiber.StatusBadRequest).JSON(err)
+
+			if err == apperror.ErrSegmentsNotFound {
+				return c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(err)
 		}
 		user.Segments[indx].ID = segmentID.ID
 	}
@@ -110,9 +118,11 @@ func (u *userHandler) DeleteSegments(c *fiber.Ctx) error {
 	err = u.userUsecase.DeleteUserSegment(context.Background(), user)
 	if err != nil {
 		u.log.Error("failed to delete segments from user - %s: %v", user.ID, err)
-		return c.Status(fiber.StatusInternalServerError).JSON(map[string]interface{}{
-			"error": err,
-		})
+
+		if err == apperror.ErrSegmentsNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(apperror.ErrSegmentsNotFound)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
 	}
 
 	u.log.Info("deleting segments from user completed successfully")

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "user"(
 
 CREATE TABLE IF NOT EXISTS segment(
     id int generated always as identity,
-    segment_type varchar(100) not null,
+    segment_type varchar(100) unique not null,
     primary key (id)
 );
 

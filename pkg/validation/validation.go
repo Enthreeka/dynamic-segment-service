@@ -9,13 +9,12 @@ import (
 func ValidSegmentName(segment string) (bool, error) {
 	count := utf8.RuneCountInString(segment)
 
-	if count < 6 {
-		return false, errors.New("the minimum segment length is 6 characters")
+	if count < 7 {
+		return false, errors.New("the minimum segment length is 7 characters")
 	}
 
 	if !strings.HasPrefix(segment, "AVITO") {
 		return false, errors.New("the first word must be AVITO")
-
 	}
 
 	if segment[5] != '_' {

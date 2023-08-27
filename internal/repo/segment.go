@@ -2,8 +2,10 @@ package repo
 
 import (
 	"context"
+	"github.com/Enthreeka/dynamic-segment-service/internal/apperror"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 type segmentRepository struct {
@@ -64,8 +66,11 @@ func (s *segmentRepository) GetByName(ctx context.Context, segmentType string) (
 
 	err := s.Pool.QueryRow(ctx, query, segmentType).Scan(&segment.ID, &segment.Segment)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, apperror.ErrSegmentsNotFound
+		}
 		return nil, err
 	}
 
-	return segment, err
+	return segment, nil
 }

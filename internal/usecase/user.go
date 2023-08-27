@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"errors"
+	"github.com/Enthreeka/dynamic-segment-service/internal/apperror"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/internal/repo"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/logger"
@@ -38,10 +38,10 @@ func (u *userService) GetAllUser(ctx context.Context) (map[string][]string, erro
 func (u *userService) GetUserInfo(ctx context.Context, id string) (*entity.User, error) {
 	userInfo, err := u.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, apperror.NewAppError(err, "failed to get info about user")
 	}
 	if userInfo.Segments == nil {
-		return nil, errors.New("zero segments")
+		return nil, apperror.ErrSegmentsNotFound
 	}
 
 	return userInfo, nil
@@ -50,16 +50,20 @@ func (u *userService) GetUserInfo(ctx context.Context, id string) (*entity.User,
 func (u *userService) SetSegment(ctx context.Context, user *entity.User) error {
 	err := u.userRepo.SetSegment(ctx, user)
 	if err != nil {
-		return err
+		return apperror.NewAppError(err, "failed to set segments to user")
 	}
 
 	return nil
 }
 
 func (u *userService) DeleteUserSegment(ctx context.Context, user *entity.User) error {
+	if len(user.Segments) == 0 {
+		return apperror.ErrSegmentsNotFound
+	}
+
 	err := u.userRepo.DeleteSegment(ctx, user)
 	if err != nil {
-		return err
+		return apperror.NewAppError(err, "failed to delete segments from user")
 	}
 
 	return nil
