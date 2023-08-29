@@ -9,6 +9,7 @@ type (
 	Config struct {
 		Server   Server   `json:"server"`
 		Postgres Postgres `json:"postgres"`
+		Swagger  Swagger  `json:"swagger"`
 	}
 
 	Server struct {
@@ -19,6 +20,11 @@ type (
 
 	Postgres struct {
 		URL string `json:"url"`
+	}
+
+	Swagger struct {
+		BasePath string `json:"base_path"`
+		FilePath string `json:"file_path"`
 	}
 )
 

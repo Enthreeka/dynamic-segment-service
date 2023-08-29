@@ -36,10 +36,19 @@ func (u *userService) GetAllUser(ctx context.Context) (map[string][]string, erro
 }
 
 func (u *userService) GetUserInfo(ctx context.Context, id string) (*entity.User, error) {
-	userInfo, err := u.userRepo.GetByID(ctx, id)
+	err := u.userRepo.FindByID(ctx, id)
+	if err != nil {
+		if err == apperror.ErrUserNotFound {
+			return nil, apperror.ErrUserNotFound
+		}
+		apperror.NewAppError(err, "failed to get info about user")
+	}
+
+	userInfo, err := u.userRepo.GetSegmentsByUserID(ctx, id)
 	if err != nil {
 		return nil, apperror.NewAppError(err, "failed to get info about user")
 	}
+
 	if userInfo.Segments == nil {
 		return nil, apperror.ErrSegmentsNotFound
 	}
@@ -48,7 +57,13 @@ func (u *userService) GetUserInfo(ctx context.Context, id string) (*entity.User,
 }
 
 func (u *userService) SetSegment(ctx context.Context, user *entity.User) error {
-	err := u.userRepo.SetSegment(ctx, user)
+	existSegment, err := u.userRepo.GetSegmentsByUserID(ctx, user.ID)
+	if len(existSegment.Segments) > 0 {
+		u.log.Error("user already exist segments: %v", existSegment.Segments)
+		return apperror.ErrUserHasSegment
+	}
+
+	err = u.userRepo.SetSegment(ctx, user)
 	if err != nil {
 		return apperror.NewAppError(err, "failed to set segments to user")
 	}

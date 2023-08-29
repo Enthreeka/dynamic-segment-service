@@ -10,6 +10,7 @@ import (
 	"github.com/Enthreeka/dynamic-segment-service/pkg/logger"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/postgres"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 )
 
 func Run(cfg *config.Config, log *logger.Logger) error {
@@ -23,6 +24,8 @@ func Run(cfg *config.Config, log *logger.Logger) error {
 
 	app := fiber.New()
 
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	segmentRepo := repo.NewSegmentRepository(conn)
 	userRepo := repo.NewUserReposotory(conn)
 
@@ -33,13 +36,14 @@ func Run(cfg *config.Config, log *logger.Logger) error {
 	userHandler := controller.NewUserHandler(segmentUsecase, userUsecase, log)
 
 	api := app.Group("/api")
+
 	v1 := api.Group("/segment")
 	v1.Get("/", segmentHandler.GetAll)
 	v1.Post("/", segmentHandler.CreateSegment)
 	v1.Delete("/:segment", segmentHandler.DeleteSegment)
 
 	v2 := api.Group("/user")
-	v2.Get("/:id", userHandler.GetUserSegment)
+	v2.Post("/:id", userHandler.GetUserSegment)
 	v2.Post("/", userHandler.SetSegments)
 	v2.Delete("/:segment", userHandler.DeleteSegments)
 

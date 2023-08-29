@@ -1,0 +1,244 @@
+basePath: /
+definitions:
+  apperror.AppError:
+    properties:
+      message:
+        type: string
+    type: object
+  entity.Segment:
+    properties:
+      id:
+        type: integer
+      segment:
+        type: string
+    type: object
+  entity.User:
+    properties:
+      id:
+        type: string
+      segments:
+        items:
+          $ref: '#/definitions/entity.Segment'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Swagger Api for Dynamic User Segmentation Service
+  title: Blueprint Swagger API
+  version: "1.0"
+paths:
+  /api/segment:
+    get:
+      consumes:
+      - application/json
+      description: get all segments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: segmentsMap
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get All Segments
+      tags:
+      - segment
+    post:
+      consumes:
+      - application/json
+      description: create segment
+      parameters:
+      - description: Segment data to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Segment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create Segment
+      tags:
+      - segment
+  /api/segment/:segment:
+    delete:
+      consumes:
+      - application/json
+      description: delete segment
+      parameters:
+      - description: Segment data to be deleted
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Segment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Segment
+      tags:
+      - segment
+  /api/user:
+    post:
+      consumes:
+      - application/json
+      description: set segments for a user
+      parameters:
+      - description: User segments to set
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "302":
+          description: Found
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Set User Segments
+      tags:
+      - user
+  /api/user/:id:
+    post:
+      consumes:
+      - application/json
+      description: get segments associated with a user
+      parameters:
+      - description: User ID
+        in: body
+        name: input
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/apperror.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get User Segments
+      tags:
+      - user
+  /api/user/:segments:
+    delete:
+      consumes:
+      - application/json
+      description: delete segments from a user
+      parameters:
+      - description: User segments to delete
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete User Segments
+      tags:
+      - user
+swagger: "2.0"

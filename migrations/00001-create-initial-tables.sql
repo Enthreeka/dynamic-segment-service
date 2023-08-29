@@ -48,9 +48,10 @@ INSERT INTO user_segment (user_id,segment_id) VALUES ('e83942f6-fef2-43e3-93cd-f
 INSERT INTO user_segment (user_id,segment_id) VALUES ('e83942f6-fef2-43e3-93cd-f9ba652c8f9a',4);
 
 
-SELECT "user".id, ARRAY_AGG(segment.segment_type) AS segment_types
+SELECT segment.segment_type
 FROM "user"
          JOIN user_segment ON "user".id = user_segment.user_id
          JOIN segment ON segment.id = user_segment.segment_id
-WHERE "user".id = '70c247da-377a-42ac-97f6-316abfc43722'
-GROUP BY "user".id;
+WHERE "user".id = '59421123-416e-451f-96ca-c8a5475ff210'
+
+

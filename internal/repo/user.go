@@ -2,9 +2,10 @@ package repo
 
 import (
 	"context"
-	"fmt"
+	"github.com/Enthreeka/dynamic-segment-service/internal/apperror"
 	"github.com/Enthreeka/dynamic-segment-service/internal/entity"
 	"github.com/Enthreeka/dynamic-segment-service/pkg/postgres"
+	"github.com/jackc/pgx/v5"
 )
 
 type userRepository struct {
@@ -64,7 +65,7 @@ func (u *userRepository) GetALL(ctx context.Context) (map[string][]string, error
 	return usersMap, nil
 }
 
-func (u *userRepository) GetByID(ctx context.Context, id string) (*entity.User, error) {
+func (u *userRepository) GetSegmentsByUserID(ctx context.Context, id string) (*entity.User, error) {
 	query := `SELECT segment.segment_type
 			FROM "user"
          	JOIN user_segment ON "user".id = user_segment.user_id
@@ -85,7 +86,6 @@ func (u *userRepository) GetByID(ctx context.Context, id string) (*entity.User, 
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(segment)
 
 		user.Segments = append(user.Segments, segment)
 	}
@@ -119,5 +119,18 @@ func (u *userRepository) DeleteSegment(ctx context.Context, user *entity.User) e
 		}
 	}
 
+	return nil
+}
+
+func (u *userRepository) FindByID(ctx context.Context, id string) error {
+	query := `SELECT id FROM "user" WHERE id = $1`
+
+	err := u.Pool.QueryRow(ctx, query, id).Scan(&id)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return apperror.ErrUserNotFound
+		}
+		return err
+	}
 	return nil
 }

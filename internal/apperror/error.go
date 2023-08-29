@@ -10,11 +10,14 @@ var (
 )
 
 var (
-	ErrSegmentsNotFound = NewAppError(errors.New("segments_not_found"), "no segments")
+	ErrSegmentsNotFound = NewAppError(errors.New("segments_not_found"), "no found segments")
+	ErrUserNotFound     = NewAppError(errors.New("user_not_found"), "user with this ID not exist")
+	ErrUserHasSegment   = NewAppError(errors.New("segment_exist"), "the user already has some kind of segment")
 )
 
 type statusMessage string
 
+// swagger:parameters apperror.AppError
 type AppError struct {
 	Err error         `json:"-"`
 	Msg statusMessage `json:"message"`

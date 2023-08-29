@@ -21,11 +21,6 @@ func NewSegmentService(segmentRepo repo.SegmentRepository, log *logger.Logger) *
 }
 
 func (s *segmentService) CreateSegment(ctx context.Context, segment string) error {
-	//validSegment, err := validation.ValidSegmentName(segment)
-	//if !validSegment {
-	//	return apperror.NewAppError(err, "invalid input data")
-	//}
-
 	err := s.segmentRepo.Create(ctx, segment)
 	if err != nil {
 		return apperror.NewAppError(err, "failed to create segment")
