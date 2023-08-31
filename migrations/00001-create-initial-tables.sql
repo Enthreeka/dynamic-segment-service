@@ -52,6 +52,13 @@ SELECT segment.segment_type
 FROM "user"
          JOIN user_segment ON "user".id = user_segment.user_id
          JOIN segment ON segment.id = user_segment.segment_id
-WHERE "user".id = '59421123-416e-451f-96ca-c8a5475ff210'
+WHERE "user".id = '59421123-416e-451f-96ca-c8a5475ff210';
+
+
+SELECT "user".id, coalesce(segment.segment_type,'null')
+FROM "user"
+        LEFT JOIN user_segment ON "user".id = user_segment.user_id
+        LEFT JOIN segment ON segment.id = user_segment.segment_id
+
 
 

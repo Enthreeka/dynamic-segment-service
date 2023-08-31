@@ -12,6 +12,7 @@ type UserService interface {
 	GetUserInfo(ctx context.Context, id string) (*entity.User, error)
 	SetSegment(ctx context.Context, user *entity.User) error
 	DeleteUserSegment(ctx context.Context, user *entity.User) error
+	//GetCSVFile(ctx context.Context, userID string, operation string, date time.Time) (string, error)
 }
 
 type SegmentService interface {

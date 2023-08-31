@@ -4,9 +4,9 @@
     "port": "8080",
     "typeserver": "port"
   },
-  "postgres":{
-    "url": "postgres://postgres:1234@localhost:5432/avito"
-  },
+    "postgres":{
+      "url": "postgres://postgres:1234@localhost:5432/avito"
+    },
   "swagger": {
     "base_path": "/",
     "file_path": "./docs/swagger.json"

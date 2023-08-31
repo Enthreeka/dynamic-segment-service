@@ -33,13 +33,16 @@ func (u *userRepository) DeleteByID(ctx context.Context, id string) error {
 }
 
 func (u *userRepository) GetALL(ctx context.Context) (map[string][]string, error) {
-	query := `SELECT "user".id, segment.segment_type
-				FROM "user"
-         		JOIN user_segment ON "user".id = user_segment.user_id
-         		JOIN segment ON segment.id = user_segment.segment_id`
+	query := `SELECT "user".id, coalesce(segment.segment_type,'null')
+		FROM "user"
+        LEFT JOIN user_segment ON "user".id = user_segment.user_id
+        LEFT JOIN segment ON segment.id = user_segment.segment_id`
 
 	rows, err := u.Pool.Query(ctx, query)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, apperror.ErrUsersNotFound
+		}
 		return nil, err
 	}
 
@@ -54,8 +57,8 @@ func (u *userRepository) GetALL(ctx context.Context) (map[string][]string, error
 		if err != nil {
 			return nil, err
 		}
-		usersMap[id] = append(usersMap[id], segment)
 
+		usersMap[id] = append(usersMap[id], segment)
 	}
 
 	if err = rows.Err(); err != nil {

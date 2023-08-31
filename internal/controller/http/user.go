@@ -54,7 +54,6 @@ func (u *userHandler) GetUserSegment(c *fiber.Ctx) error {
 		})
 	}
 
-	u.log.Info("%#v", input)
 	userInfo, err := u.userUsecase.GetUserInfo(context.Background(), input.UserID)
 	if err != nil {
 		u.log.Error("failed to get info about user - %s: %v", input.UserID, err)
@@ -174,4 +173,29 @@ func (u *userHandler) DeleteSegments(c *fiber.Ctx) error {
 		"message":          "Completed successfully",
 		"deleted_segments": user.Segments,
 	})
+}
+
+// GetAllUser godoc
+// @Summary Get All User
+// @Tags user
+// @Description get all users and their segments
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string][]string
+// @Failure 404 {object} apperror.AppError
+// @Failure 500 {object} apperror.AppError
+// @Router /api/user/all [get]
+func (u *userHandler) GetAllUser(c *fiber.Ctx) error {
+	u.log.Info("getting all users started")
+
+	users, err := u.userUsecase.GetAllUser(context.Background())
+	if err != nil {
+		if err == apperror.ErrUsersNotFound {
+			u.log.Error("failed to ger all user: %v", err)
+			return c.Status(fiber.StatusNotFound).JSON(apperror.ErrUsersNotFound)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(users)
 }

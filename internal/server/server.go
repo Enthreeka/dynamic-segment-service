@@ -46,6 +46,7 @@ func Run(cfg *config.Config, log *logger.Logger) error {
 	v2.Post("/:id", userHandler.GetUserSegment)
 	v2.Post("/", userHandler.SetSegments)
 	v2.Delete("/:segment", userHandler.DeleteSegments)
+	v2.Get("/all", userHandler.GetAllUser)
 
 	log.Info("Starting http server: %s:%s", cfg.Server.TypeServer, cfg.Server.Port)
 
